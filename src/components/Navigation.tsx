@@ -1,14 +1,15 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { AuthModal } from "./auth/AuthModal";
+import { useNavigate } from "react-router-dom";
 
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -16,7 +17,12 @@ export const Navigation = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <div className="flex-shrink-0 flex items-center">
-              <h1 className="text-xl font-bold text-gray-900">StudentCollab</h1>
+              <h1 
+                onClick={() => navigate('/')} 
+                className="text-xl font-bold text-gray-900 cursor-pointer"
+              >
+                StudentCollab
+              </h1>
             </div>
             
             <div className="hidden md:flex md:items-center md:space-x-8">
@@ -24,14 +30,20 @@ export const Navigation = () => {
                 How it Works
               </a>
               {user?.role === 'student' && (
-                <a href="/projects" className="text-gray-700 hover:text-gray-900 transition-colors">
+                <Button 
+                  onClick={() => navigate('/projects')}
+                  className="bg-primary hover:bg-primary/90"
+                >
                   Find Projects
-                </a>
+                </Button>
               )}
               {user?.role === 'client' && (
-                <a href="/post-project" className="text-gray-700 hover:text-gray-900 transition-colors">
+                <Button 
+                  onClick={() => navigate('/post-project')}
+                  className="bg-primary hover:bg-primary/90"
+                >
                   Post Project
-                </a>
+                </Button>
               )}
               {!user && (
                 <a href="#for-clients" className="text-gray-700 hover:text-gray-900 transition-colors">
@@ -39,12 +51,7 @@ export const Navigation = () => {
                 </a>
               )}
               {user ? (
-                <>
-                  <Button variant="outline" onClick={() => signOut()}>Sign Out</Button>
-                  <Button className="bg-primary hover:bg-primary/90">
-                    {user.role === 'student' ? 'Find Projects' : 'Post Project'}
-                  </Button>
-                </>
+                <Button variant="outline" onClick={() => signOut()}>Sign Out</Button>
               ) : (
                 <>
                   <Button variant="outline" onClick={() => setIsAuthModalOpen(true)}>
@@ -79,20 +86,20 @@ export const Navigation = () => {
                 How it Works
               </a>
               {user?.role === 'student' && (
-                <a
-                  href="/projects"
-                  className="block px-3 py-2 text-gray-700 hover:text-gray-900 transition-colors"
+                <Button 
+                  onClick={() => navigate('/projects')}
+                  className="w-full justify-start"
                 >
                   Find Projects
-                </a>
+                </Button>
               )}
               {user?.role === 'client' && (
-                <a
-                  href="/post-project"
-                  className="block px-3 py-2 text-gray-700 hover:text-gray-900 transition-colors"
+                <Button 
+                  onClick={() => navigate('/post-project')}
+                  className="w-full justify-start"
                 >
                   Post Project
-                </a>
+                </Button>
               )}
               {!user && (
                 <a
@@ -104,14 +111,9 @@ export const Navigation = () => {
               )}
               <div className="px-3 py-2 space-y-2">
                 {user ? (
-                  <>
-                    <Button variant="outline" className="w-full" onClick={() => signOut()}>
-                      Sign Out
-                    </Button>
-                    <Button className="w-full bg-primary hover:bg-primary/90">
-                      {user.role === 'student' ? 'Find Projects' : 'Post Project'}
-                    </Button>
-                  </>
+                  <Button variant="outline" className="w-full" onClick={() => signOut()}>
+                    Sign Out
+                  </Button>
                 ) : (
                   <>
                     <Button
