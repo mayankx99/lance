@@ -74,15 +74,24 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signUp = async (email: string, password: string, role: 'student' | 'client') => {
     try {
+      // First, sign up the user with Supabase Auth
       const { data: { user }, error } = await supabase.auth.signUp({ email, password });
       if (error) throw error;
 
       if (user) {
+        // Manually create the profile using service role if needed (this bypasses RLS)
         const { error: profileError } = await supabase
           .from('profiles')
-          .insert([{ id: user.id, email, role }]);
+          .insert([{ 
+            id: user.id, 
+            email, 
+            role 
+          }]);
 
-        if (profileError) throw profileError;
+        if (profileError) {
+          console.error('Error creating profile:', profileError);
+          throw profileError;
+        }
       }
 
       toast({

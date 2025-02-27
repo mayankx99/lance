@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/components/ui/use-toast';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -23,16 +24,49 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<'student' | 'client'>('student');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { signIn, signUp } = useAuth();
+  const { toast } = useToast();
+
+  const validateInputs = () => {
+    if (!email || !email.includes('@')) {
+      toast({
+        variant: "destructive",
+        title: "Invalid email",
+        description: "Please enter a valid email address."
+      });
+      return false;
+    }
+    if (!password || password.length < 6) {
+      toast({
+        variant: "destructive",
+        title: "Invalid password",
+        description: "Password must be at least 6 characters."
+      });
+      return false;
+    }
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isSignUp) {
-      await signUp(email, password, role);
-    } else {
-      await signIn(email, password);
+    
+    if (!validateInputs()) return;
+    
+    setIsSubmitting(true);
+    
+    try {
+      if (isSignUp) {
+        await signUp(email, password, role);
+      } else {
+        await signIn(email, password);
+      }
+      onClose();
+    } catch (error) {
+      console.error('Authentication error:', error);
+    } finally {
+      setIsSubmitting(false);
     }
-    onClose();
   };
 
   return (
@@ -65,6 +99,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              minLength={6}
             />
           </div>
           {isSignUp && (
@@ -83,11 +118,14 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
             </div>
           )}
           <div className="flex flex-col space-y-2">
-            <Button type="submit">{isSignUp ? 'Sign up' : 'Sign in'}</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Processing...' : isSignUp ? 'Sign up' : 'Sign in'}
+            </Button>
             <Button
               type="button"
               variant="link"
               onClick={() => setIsSignUp(!isSignUp)}
+              disabled={isSubmitting}
             >
               {isSignUp
                 ? 'Already have an account? Sign in'
