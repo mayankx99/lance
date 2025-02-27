@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ProjectForm {
   title: string;
@@ -22,6 +23,7 @@ export default function PostProject() {
   const { toast } = useToast();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const onSubmit = async (data: ProjectForm) => {
     try {
@@ -42,6 +44,8 @@ export default function PostProject() {
         description: "Your project has been posted successfully.",
       });
       
+      // Invalidate the projects query to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
       navigate('/projects');
     } catch (error: any) {
       toast({
@@ -55,7 +59,7 @@ export default function PostProject() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 pt-24">
         <div className="max-w-2xl mx-auto">
           <h1 className="text-3xl font-bold mb-8">Post a New Project</h1>
           

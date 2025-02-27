@@ -60,14 +60,16 @@ export default function Projects() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navigation />
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8 pt-24">
         <h1 className="text-3xl font-bold mb-8">Available Projects</h1>
         
         {isLoading ? (
-          <div>Loading projects...</div>
-        ) : (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-pulse text-primary">Loading projects...</div>
+          </div>
+        ) : projects && projects.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects?.map((project) => (
+            {projects.map((project) => (
               <Card key={project.id}>
                 <CardHeader>
                   <CardTitle>{project.title}</CardTitle>
@@ -105,6 +107,18 @@ export default function Projects() {
                 </CardFooter>
               </Card>
             ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <p className="text-gray-500">No projects available yet.</p>
+            {user?.role === 'client' && (
+              <Button 
+                className="mt-4"
+                onClick={() => window.location.href = '/post-project'}
+              >
+                Post Your First Project
+              </Button>
+            )}
           </div>
         )}
       </main>
