@@ -6,12 +6,20 @@ import { Navigation } from "@/components/Navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/lib/supabase";
 import { Project } from "@/types/user";
-import { FileText, Send } from "lucide-react";
+import { FileText, Send, Upload } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 export default function Projects() {
   const { toast } = useToast();
   const { user } = useAuth();
+  const [isApplyDialogOpen, setIsApplyDialogOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { data: projects, isLoading } = useQuery({
     queryKey: ['projects'],
@@ -26,20 +34,45 @@ export default function Projects() {
     }
   });
 
-  const handleApply = async (projectId: string) => {
+  const openApplyDialog = (project: Project) => {
+    setSelectedProject(project);
+    setIsApplyDialogOpen(true);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setResumeFile(e.target.files[0]);
+    }
+  };
+
+  const handleApply = async () => {
+    if (!resumeFile || !selectedProject || !user) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Please select a resume file to upload.",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
     try {
+      // Upload the resume file to Supabase Storage
+      const fileName = `${user.id}/${selectedProject.id}_${Date.now()}.pdf`;
       const { error: uploadError, data } = await supabase.storage
         .from('resumes')
-        .upload(`${user?.id}/${projectId}.pdf`, new File([], 'dummy.pdf')); // You'll need to implement file upload UI
+        .upload(fileName, resumeFile);
 
       if (uploadError) throw uploadError;
 
+      // Create the application record
       const { error } = await supabase
         .from('applications')
         .insert({
-          project_id: projectId,
-          student_id: user?.id,
-          resume_url: data?.path
+          project_id: selectedProject.id,
+          student_id: user.id,
+          resume_url: data?.path || fileName
         });
 
       if (error) throw error;
@@ -48,12 +81,18 @@ export default function Projects() {
         title: "Application submitted",
         description: "Your application has been submitted successfully.",
       });
+
+      // Close the dialog and reset state
+      setIsApplyDialogOpen(false);
+      setResumeFile(null);
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Error",
         description: error.message,
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -98,7 +137,7 @@ export default function Projects() {
                   {user?.role === 'student' && project.status === 'open' && (
                     <Button 
                       className="w-full"
-                      onClick={() => handleApply(project.id)}
+                      onClick={() => openApplyDialog(project)}
                     >
                       <FileText className="mr-2" />
                       Apply Now
@@ -121,6 +160,50 @@ export default function Projects() {
             )}
           </div>
         )}
+
+        {/* Application Dialog */}
+        <Dialog open={isApplyDialogOpen} onOpenChange={setIsApplyDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Apply for {selectedProject?.title}</DialogTitle>
+              <DialogDescription>
+                Upload your resume to apply for this project.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="resume">Resume (PDF)</Label>
+                <Input
+                  id="resume"
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleFileChange}
+                />
+                <p className="text-sm text-muted-foreground">
+                  Please upload your resume in PDF format.
+                </p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsApplyDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleApply} 
+                disabled={!resumeFile || isSubmitting}
+              >
+                {isSubmitting ? (
+                  <>Submitting...</>
+                ) : (
+                  <>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Submit Application
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );
