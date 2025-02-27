@@ -2,8 +2,13 @@
 import { Navigation } from "@/components/Navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
+  const navigate = useNavigate();
+  const { user, loading } = useAuth();
+
   return (
     <div className="min-h-screen">
       <Navigation />
@@ -20,12 +25,20 @@ const Index = () => {
               Join a community of students working on real-world projects. Build your portfolio, earn money, and gain valuable experience.
             </p>
             <div className="flex justify-center gap-4 fade-in">
-              <Button size="lg" className="bg-primary hover:bg-primary/90">
-                Find Projects
+              <Button 
+                size="lg" 
+                className="bg-primary hover:bg-primary/90"
+                onClick={() => navigate(user?.role === 'student' ? '/projects' : '/post-project')}
+              >
+                {user?.role === 'student' ? 'Find Projects' : 'Post Project'}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button size="lg" variant="outline">
-                Post a Project
+              <Button 
+                size="lg" 
+                variant="outline"
+                onClick={() => navigate(user?.role === 'student' ? '/post-project' : '/projects')}
+              >
+                {user?.role === 'student' ? 'Post a Project' : 'View Projects'}
               </Button>
             </div>
           </div>
@@ -89,7 +102,11 @@ const Index = () => {
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
             Join thousands of students who are building their careers through real-world projects.
           </p>
-          <Button size="lg" className="bg-primary hover:bg-primary/90">
+          <Button 
+            size="lg" 
+            className="bg-primary hover:bg-primary/90"
+            onClick={() => navigate(user ? (user.role === 'student' ? '/projects' : '/post-project') : '#')}
+          >
             Get Started Now
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
