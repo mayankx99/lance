@@ -29,23 +29,33 @@ export const Navigation = () => {
               <a href="#how-it-works" className="text-gray-700 hover:text-gray-900 transition-colors">
                 How it Works
               </a>
-              {user?.role === 'student' && <Button onClick={() => handleNavigate('/projects')} className="bg-primary hover:bg-primary/90">
+              {user?.role === 'student' && (
+                <Button onClick={() => handleNavigate('/projects')} className="bg-primary hover:bg-primary/90">
                   Find Projects
-                </Button>}
-              {user?.role === 'client' && <Button onClick={() => handleNavigate('/post-project')} className="bg-primary hover:bg-primary/90">
+                </Button>
+              )}
+              {user?.role === 'client' && (
+                <Button onClick={() => handleNavigate('/post-project')} className="bg-primary hover:bg-primary/90">
                   Post Project
-                </Button>}
-              {!user && <a href="#for-clients" className="text-gray-700 hover:text-gray-900 transition-colors">
+                </Button>
+              )}
+              {!user && (
+                <a href="#for-clients" className="text-gray-700 hover:text-gray-900 transition-colors">
                   For Clients
-                </a>}
-              {user ? <Button variant="outline" onClick={signOut}>Sign Out</Button> : <>
+                </a>
+              )}
+              {user ? (
+                <Button variant="outline" onClick={signOut}>Sign Out</Button>
+              ) : (
+                <>
                   <Button variant="outline" onClick={() => setIsAuthModalOpen(true)}>
                     Sign In
                   </Button>
                   <Button className="bg-primary hover:bg-primary/90" onClick={() => setIsAuthModalOpen(true)}>
                     Get Started
                   </Button>
-                </>}
+                </>
+              )}
             </div>
 
             <div className="md:hidden">
@@ -57,34 +67,46 @@ export const Navigation = () => {
         </div>
 
         {/* Mobile menu */}
-        {isOpen && <div className="md:hidden">
+        {isOpen && (
+          <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-b">
               <a href="#how-it-works" className="block px-3 py-2 text-gray-700 hover:text-gray-900 transition-colors">
                 How it Works
               </a>
-              {user?.role === 'student' && <Button onClick={() => handleNavigate('/projects')} className="w-full justify-start">
+              {user?.role === 'student' && (
+                <Button onClick={() => handleNavigate('/projects')} className="w-full justify-start">
                   Find Projects
-                </Button>}
-              {user?.role === 'client' && <Button onClick={() => handleNavigate('/post-project')} className="w-full justify-start">
+                </Button>
+              )}
+              {user?.role === 'client' && (
+                <Button onClick={() => handleNavigate('/post-project')} className="w-full justify-start">
                   Post Project
-                </Button>}
-              {!user && <a href="#for-clients" className="block px-3 py-2 text-gray-700 hover:text-gray-900 transition-colors">
+                </Button>
+              )}
+              {!user && (
+                <a href="#for-clients" className="block px-3 py-2 text-gray-700 hover:text-gray-900 transition-colors">
                   For Clients
-                </a>}
+                </a>
+              )}
               <div className="px-3 py-2 space-y-2">
-                {user ? <Button variant="outline" className="w-full" onClick={signOut}>
+                {user ? (
+                  <Button variant="outline" className="w-full" onClick={signOut}>
                     Sign Out
-                  </Button> : <>
+                  </Button>
+                ) : (
+                  <>
                     <Button variant="outline" className="w-full" onClick={() => setIsAuthModalOpen(true)}>
                       Sign In
                     </Button>
                     <Button className="w-full bg-primary hover:bg-primary/90" onClick={() => setIsAuthModalOpen(true)}>
                       Get Started
                     </Button>
-                  </>}
+                  </>
+                )}
               </div>
             </div>
-          </div>}
+          </div>
+        )}
       </nav>
 
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />

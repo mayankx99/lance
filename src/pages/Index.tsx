@@ -25,21 +25,41 @@ const Index = () => {
               Join a community of students working on real-world projects. Build your portfolio, earn money, and gain valuable experience.
             </p>
             <div className="flex justify-center gap-4 fade-in">
-              <Button 
-                size="lg" 
-                className="bg-primary hover:bg-primary/90"
-                onClick={() => navigate(user?.role === 'student' ? '/projects' : '/post-project')}
-              >
-                {user?.role === 'student' ? 'Find Projects' : 'Post Project'}
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline"
-                onClick={() => navigate(user?.role === 'student' ? '/post-project' : '/projects')}
-              >
-                {user?.role === 'student' ? 'Post a Project' : 'View Projects'}
-              </Button>
+              {!loading && (
+                user ? (
+                  user.role === 'student' ? (
+                    // Student action button
+                    <Button 
+                      size="lg" 
+                      className="bg-primary hover:bg-primary/90"
+                      onClick={() => navigate('/projects')}
+                    >
+                      Find Projects
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  ) : (
+                    // Client action button
+                    <Button 
+                      size="lg" 
+                      className="bg-primary hover:bg-primary/90"
+                      onClick={() => navigate('/post-project')}
+                    >
+                      Post Project
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </Button>
+                  )
+                ) : (
+                  // Not logged in - show get started button
+                  <Button 
+                    size="lg" 
+                    className="bg-primary hover:bg-primary/90"
+                    onClick={() => navigate('/projects')}
+                  >
+                    Get Started
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                )
+              )}
             </div>
           </div>
         </div>
@@ -105,7 +125,7 @@ const Index = () => {
           <Button 
             size="lg" 
             className="bg-primary hover:bg-primary/90"
-            onClick={() => navigate(user ? (user.role === 'student' ? '/projects' : '/post-project') : '#')}
+            onClick={() => navigate(user ? (user.role === 'student' ? '/projects' : '/post-project') : '/projects')}
           >
             Get Started Now
             <ArrowRight className="ml-2 h-5 w-5" />
