@@ -9,12 +9,18 @@ import { useNavigate } from "react-router-dom";
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
   const handleNavigate = (path: string) => {
     navigate(path);
     setIsOpen(false); // Close mobile menu when navigating
+  };
+
+  const handleOpenAuthModal = (mode: 'signin' | 'signup') => {
+    setAuthMode(mode);
+    setIsAuthModalOpen(true);
   };
 
   return <>
@@ -48,10 +54,10 @@ export const Navigation = () => {
                 <Button variant="outline" onClick={signOut}>Sign Out</Button>
               ) : (
                 <>
-                  <Button variant="outline" onClick={() => setIsAuthModalOpen(true)}>
+                  <Button variant="outline" onClick={() => handleOpenAuthModal('signin')}>
                     Sign In
                   </Button>
-                  <Button className="bg-primary hover:bg-primary/90" onClick={() => setIsAuthModalOpen(true)}>
+                  <Button className="bg-primary hover:bg-primary/90" onClick={() => handleOpenAuthModal('signup')}>
                     Get Started
                   </Button>
                 </>
@@ -95,10 +101,10 @@ export const Navigation = () => {
                   </Button>
                 ) : (
                   <>
-                    <Button variant="outline" className="w-full" onClick={() => setIsAuthModalOpen(true)}>
+                    <Button variant="outline" className="w-full" onClick={() => handleOpenAuthModal('signin')}>
                       Sign In
                     </Button>
-                    <Button className="w-full bg-primary hover:bg-primary/90" onClick={() => setIsAuthModalOpen(true)}>
+                    <Button className="w-full bg-primary hover:bg-primary/90" onClick={() => handleOpenAuthModal('signup')}>
                       Get Started
                     </Button>
                   </>
@@ -109,6 +115,6 @@ export const Navigation = () => {
         )}
       </nav>
 
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} initialMode={authMode} />
     </>;
 };

@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -17,6 +17,7 @@ import { toast } from '@/components/ui/use-toast';
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialMode?: 'signin' | 'signup';
 }
 
 interface AuthFormValues {
@@ -24,22 +25,42 @@ interface AuthFormValues {
   password: string;
 }
 
-export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
-  const [isSignUp, setIsSignUp] = useState(false);
+export const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) => {
+  const [isSignUp, setIsSignUp] = useState(initialMode === 'signup');
   const [role, setRole] = useState<'student' | 'client'>('student');
   const { signIn, signUp, loading } = useAuth();
   const { register, handleSubmit, formState: { errors }, reset } = useForm<AuthFormValues>();
+
+  // Update mode when initialMode prop changes
+  useEffect(() => {
+    if (initialMode) {
+      setIsSignUp(initialMode === 'signup');
+    }
+  }, [initialMode]);
 
   const onSubmit = async (data: AuthFormValues) => {
     try {
       if (isSignUp) {
         await signUp(data.email, data.password, role);
+        toast({
+          title: "Account created",
+          description: "Your account has been created successfully. Please check your email for verification if needed.",
+        });
       } else {
         await signIn(data.email, data.password);
+        toast({
+          title: "Welcome back!",
+          description: "You've successfully signed in.",
+        });
         onClose();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Authentication error:', error);
+      toast({
+        variant: "destructive",
+        title: "Authentication failed",
+        description: error.message || "An error occurred during authentication",
+      });
     }
   };
 
