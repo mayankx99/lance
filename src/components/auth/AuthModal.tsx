@@ -8,11 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { useAuth } from '@/contexts/AuthContext';
-import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from '@/contexts/Auth0Context';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -21,52 +17,15 @@ interface AuthModalProps {
 
 export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const [isSignUp, setIsSignUp] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'student' | 'client'>('student');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { signIn, signUp } = useAuth();
-  const { toast } = useToast();
+  const { signIn, signUp, loading } = useAuth();
 
-  const validateInputs = () => {
-    if (!email || !email.includes('@')) {
-      toast({
-        variant: "destructive",
-        title: "Invalid email",
-        description: "Please enter a valid email address."
-      });
-      return false;
+  const handleAuth = () => {
+    if (isSignUp) {
+      signUp();
+    } else {
+      signIn();
     }
-    if (!password || password.length < 6) {
-      toast({
-        variant: "destructive",
-        title: "Invalid password",
-        description: "Password must be at least 6 characters."
-      });
-      return false;
-    }
-    return true;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateInputs()) return;
-    
-    setIsSubmitting(true);
-    
-    try {
-      if (isSignUp) {
-        await signUp(email, password, role);
-      } else {
-        await signIn(email, password);
-      }
-      onClose();
-    } catch (error) {
-      console.error('Authentication error:', error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    onClose();
   };
 
   return (
@@ -80,59 +39,31 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
               : 'Sign in to your account to continue.'}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-            />
-          </div>
-          {isSignUp && (
-            <div className="space-y-2">
-              <Label>I am a...</Label>
-              <RadioGroup value={role} onValueChange={(value: 'student' | 'client') => setRole(value)}>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="student" id="student" />
-                  <Label htmlFor="student">Student</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="client" id="client" />
-                  <Label htmlFor="client">Client</Label>
-                </div>
-              </RadioGroup>
-            </div>
-          )}
-          <div className="flex flex-col space-y-2">
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Processing...' : isSignUp ? 'Sign up' : 'Sign in'}
-            </Button>
-            <Button
-              type="button"
-              variant="link"
-              onClick={() => setIsSignUp(!isSignUp)}
-              disabled={isSubmitting}
-            >
-              {isSignUp
-                ? 'Already have an account? Sign in'
-                : "Don't have an account? Sign up"}
-            </Button>
-          </div>
-        </form>
+        <div className="space-y-4">
+          <p className="text-center text-sm text-muted-foreground">
+            {isSignUp ? 'Ready to join?' : 'Welcome back!'}
+          </p>
+          
+          <Button 
+            className="w-full" 
+            onClick={handleAuth}
+            disabled={loading}
+          >
+            {loading ? 'Processing...' : isSignUp ? 'Sign up with Auth0' : 'Sign in with Auth0'}
+          </Button>
+          
+          <Button
+            type="button"
+            variant="link"
+            className="w-full"
+            onClick={() => setIsSignUp(!isSignUp)}
+            disabled={loading}
+          >
+            {isSignUp
+              ? 'Already have an account? Sign in'
+              : "Don't have an account? Sign up"}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/Auth0Context";
 import { AuthModal } from "./auth/AuthModal";
 import { useNavigate } from "react-router-dom";
 
@@ -41,7 +41,7 @@ export const Navigation = () => {
               {!user && <a href="#for-clients" className="text-gray-700 hover:text-gray-900 transition-colors">
                   For Clients
                 </a>}
-              {user ? <Button variant="outline" onClick={() => signOut()}>Sign Out</Button> : <>
+              {user ? <Button variant="outline" onClick={signOut}>Sign Out</Button> : <>
                   <Button variant="outline" onClick={() => setIsAuthModalOpen(true)}>
                     Sign In
                   </Button>
@@ -75,7 +75,7 @@ export const Navigation = () => {
                   For Clients
                 </a>}
               <div className="px-3 py-2 space-y-2">
-                {user ? <Button variant="outline" className="w-full" onClick={() => signOut()}>
+                {user ? <Button variant="outline" className="w-full" onClick={signOut}>
                     Sign Out
                   </Button> : <>
                     <Button variant="outline" className="w-full" onClick={() => setIsAuthModalOpen(true)}>
