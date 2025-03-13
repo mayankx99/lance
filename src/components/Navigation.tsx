@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
-import { useAuth } from "@/contexts/Auth0Context";
+import { useAuth } from "@/contexts/AuthContext";
 import { AuthModal } from "./auth/AuthModal";
 import { useNavigate } from "react-router-dom";
 
