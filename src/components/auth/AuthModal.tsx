@@ -12,6 +12,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useForm } from 'react-hook-form';
+import { toast } from '@/components/ui/use-toast';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -27,7 +28,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [role, setRole] = useState<'student' | 'client'>('student');
   const { signIn, signUp, loading } = useAuth();
-  const { register, handleSubmit, formState: { errors } } = useForm<AuthFormValues>();
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<AuthFormValues>();
 
   const onSubmit = async (data: AuthFormValues) => {
     try {
@@ -35,15 +36,25 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
         await signUp(data.email, data.password, role);
       } else {
         await signIn(data.email, data.password);
+        onClose();
       }
-      onClose();
     } catch (error) {
       console.error('Authentication error:', error);
     }
   };
 
+  const toggleAuthMode = () => {
+    setIsSignUp(!isSignUp);
+    reset();
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+      if (!open) {
+        onClose();
+        reset();
+      }
+    }}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{isSignUp ? 'Create an account' : 'Sign in'}</DialogTitle>
@@ -124,7 +135,7 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
             type="button"
             variant="link"
             className="w-full"
-            onClick={() => setIsSignUp(!isSignUp)}
+            onClick={toggleAuthMode}
             disabled={loading}
           >
             {isSignUp

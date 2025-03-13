@@ -9,10 +9,7 @@ import { useNavigate } from "react-router-dom";
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const {
-    user,
-    signOut
-  } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
   const handleNavigate = (path: string) => {
