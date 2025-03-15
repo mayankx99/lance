@@ -82,6 +82,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
+      if (!email || !password) {
+        throw new Error("Email and password are required");
+      }
+      
       const { data, error } = await supabase.auth.signInWithPassword({ 
         email, 
         password 
@@ -92,18 +96,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (data.user) {
         await fetchUserProfile(data.user.id);
       }
-      
-      toast({
-        title: "Welcome back!",
-        description: "You've successfully signed in.",
-      });
     } catch (error: any) {
       console.error('Sign in error:', error);
-      toast({
-        variant: "destructive",
-        title: "Error signing in",
-        description: error.message,
-      });
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -112,6 +107,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signUp = async (email: string, password: string, role: 'student' | 'client') => {
     try {
       setLoading(true);
+      if (!email || !password) {
+        throw new Error("Email and password are required");
+      }
+      
       const { data, error } = await supabase.auth.signUp({ 
         email, 
         password,
@@ -125,17 +124,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (error) throw error;
       
-      toast({
-        title: "Welcome!",
-        description: "Your account has been created successfully. Please check your email for verification if needed.",
-      });
     } catch (error: any) {
       console.error('Sign up error:', error);
-      toast({
-        variant: "destructive",
-        title: "Error signing up",
-        description: error.message,
-      });
+      throw error;
     } finally {
       setLoading(false);
     }
@@ -148,18 +139,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (error) throw error;
       
       setUser(null);
-      
-      toast({
-        title: "Signed out",
-        description: "You've been successfully signed out.",
-      });
     } catch (error: any) {
       console.error('Sign out error:', error);
-      toast({
-        variant: "destructive",
-        title: "Error signing out",
-        description: error.message,
-      });
+      throw error;
     } finally {
       setLoading(false);
     }

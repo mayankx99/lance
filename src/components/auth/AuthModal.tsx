@@ -29,7 +29,12 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModal
   const [isSignUp, setIsSignUp] = useState(initialMode === 'signup');
   const [role, setRole] = useState<'student' | 'client'>('student');
   const { signIn, signUp, loading } = useAuth();
-  const { register, handleSubmit, formState: { errors }, reset } = useForm<AuthFormValues>();
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<AuthFormValues>({
+    defaultValues: {
+      email: '',
+      password: ''
+    }
+  });
 
   // Update mode when initialMode prop changes
   useEffect(() => {
@@ -37,6 +42,13 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModal
       setIsSignUp(initialMode === 'signup');
     }
   }, [initialMode]);
+
+  // Reset form when modal opens/closes or mode changes
+  useEffect(() => {
+    if (isOpen) {
+      reset({ email: '', password: '' });
+    }
+  }, [isOpen, isSignUp, reset]);
 
   const onSubmit = async (data: AuthFormValues) => {
     try {
@@ -92,6 +104,7 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModal
               id="email" 
               type="email" 
               placeholder="Enter your email"
+              autoComplete={isSignUp ? "new-email" : "email"}
               {...register("email", { 
                 required: "Email is required",
                 pattern: {
@@ -109,6 +122,7 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModal
               id="password" 
               type="password" 
               placeholder="Enter your password"
+              autoComplete={isSignUp ? "new-password" : "current-password"}
               {...register("password", { 
                 required: "Password is required",
                 minLength: {
