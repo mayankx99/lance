@@ -13,6 +13,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useForm } from 'react-hook-form';
 import { toast } from '@/components/ui/use-toast';
+import { AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -28,6 +30,7 @@ interface AuthFormValues {
 export const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModalProps) => {
   const [isSignUp, setIsSignUp] = useState(initialMode === 'signup');
   const [role, setRole] = useState<'student' | 'client'>('student');
+  const [error, setError] = useState<string | null>(null);
   const { signIn, signUp, loading } = useAuth();
   const { register, handleSubmit, formState: { errors }, reset } = useForm<AuthFormValues>({
     defaultValues: {
@@ -47,10 +50,12 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModal
   useEffect(() => {
     if (isOpen) {
       reset({ email: '', password: '' });
+      setError(null);
     }
   }, [isOpen, isSignUp, reset]);
 
   const onSubmit = async (data: AuthFormValues) => {
+    setError(null);
     try {
       if (isSignUp) {
         await signUp(data.email, data.password, role);
@@ -68,16 +73,13 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModal
       }
     } catch (error: any) {
       console.error('Authentication error:', error);
-      toast({
-        variant: "destructive",
-        title: "Authentication failed",
-        description: error.message || "An error occurred during authentication",
-      });
+      setError(error.message || "An error occurred during authentication");
     }
   };
 
   const toggleAuthMode = () => {
     setIsSignUp(!isSignUp);
+    setError(null);
     reset();
   };
 
@@ -86,6 +88,7 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModal
       if (!open) {
         onClose();
         reset();
+        setError(null);
       }
     }}>
       <DialogContent className="sm:max-w-[425px]">
@@ -97,6 +100,14 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModal
               : 'Sign in to your account to continue.'}
           </DialogDescription>
         </DialogHeader>
+        
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
@@ -104,7 +115,7 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModal
               id="email" 
               type="email" 
               placeholder="Enter your email"
-              autoComplete={isSignUp ? "new-email" : "email"}
+              autoComplete="off"
               {...register("email", { 
                 required: "Email is required",
                 pattern: {
@@ -122,7 +133,7 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModal
               id="password" 
               type="password" 
               placeholder="Enter your password"
-              autoComplete={isSignUp ? "new-password" : "current-password"}
+              autoComplete="new-password"
               {...register("password", { 
                 required: "Password is required",
                 minLength: {

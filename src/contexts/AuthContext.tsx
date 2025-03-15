@@ -1,7 +1,7 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@/types/user';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/components/ui/use-toast';
 
 interface AuthContextType {
@@ -86,12 +86,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error("Email and password are required");
       }
       
+      console.log('Attempting to sign in with:', { email });
+      
       const { data, error } = await supabase.auth.signInWithPassword({ 
         email, 
         password 
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Sign in error from Supabase:', error);
+        throw error;
+      }
+      
+      console.log('Sign in successful, user:', data.user);
       
       if (data.user) {
         await fetchUserProfile(data.user.id);
@@ -105,7 +112,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       toast({
         variant: "destructive",
         title: "Error signing in",
-        description: error.message,
+        description: error.message || "An error occurred while signing in",
       });
       throw error;
     } finally {
@@ -120,6 +127,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error("Email and password are required");
       }
       
+      console.log('Attempting to sign up with:', { email, role });
+      
       const { data, error } = await supabase.auth.signUp({ 
         email, 
         password,
@@ -131,7 +140,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Sign up error from Supabase:', error);
+        throw error;
+      }
+      
+      console.log('Sign up successful, user:', data.user);
       
       toast({
         title: "Welcome!",
@@ -142,7 +156,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       toast({
         variant: "destructive",
         title: "Error signing up",
-        description: error.message,
+        description: error.message || "An error occurred while creating your account",
       });
       throw error;
     } finally {
@@ -166,7 +180,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       toast({
         variant: "destructive",
         title: "Error signing out",
-        description: error.message,
+        description: error.message || "An error occurred while signing out",
       });
       throw error;
     } finally {
