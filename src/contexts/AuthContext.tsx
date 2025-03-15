@@ -95,9 +95,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (data.user) {
         await fetchUserProfile(data.user.id);
+        toast({
+          title: "Welcome back!",
+          description: "You've successfully signed in.",
+        });
       }
     } catch (error: any) {
       console.error('Sign in error:', error);
+      toast({
+        variant: "destructive",
+        title: "Error signing in",
+        description: error.message,
+      });
       throw error;
     } finally {
       setLoading(false);
@@ -124,8 +133,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (error) throw error;
       
+      toast({
+        title: "Welcome!",
+        description: "Your account has been created successfully. Please check your email for verification if needed.",
+      });
     } catch (error: any) {
       console.error('Sign up error:', error);
+      toast({
+        variant: "destructive",
+        title: "Error signing up",
+        description: error.message,
+      });
       throw error;
     } finally {
       setLoading(false);
@@ -139,8 +157,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (error) throw error;
       
       setUser(null);
+      toast({
+        title: "Signed out",
+        description: "You've been successfully signed out.",
+      });
     } catch (error: any) {
       console.error('Sign out error:', error);
+      toast({
+        variant: "destructive",
+        title: "Error signing out",
+        description: error.message,
+      });
       throw error;
     } finally {
       setLoading(false);

@@ -23,6 +23,15 @@ export const Navigation = () => {
     setIsAuthModalOpen(true);
   };
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate('/'); // Navigate to home after sign out
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   return <>
       <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-md z-50 border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -41,9 +50,14 @@ export const Navigation = () => {
                 </Button>
               )}
               {user?.role === 'client' && (
-                <Button onClick={() => handleNavigate('/post-project')} className="bg-primary hover:bg-primary/90">
-                  Post Project
-                </Button>
+                <>
+                  <Button onClick={() => handleNavigate('/post-project')} className="bg-primary hover:bg-primary/90">
+                    Post Project
+                  </Button>
+                  <Button onClick={() => handleNavigate('/projects')} variant="outline">
+                    View Projects
+                  </Button>
+                </>
               )}
               {!user && (
                 <a href="#for-clients" className="text-gray-700 hover:text-gray-900 transition-colors">
@@ -51,7 +65,7 @@ export const Navigation = () => {
                 </a>
               )}
               {user ? (
-                <Button variant="outline" onClick={signOut}>Sign Out</Button>
+                <Button variant="outline" onClick={handleSignOut}>Sign Out</Button>
               ) : (
                 <>
                   <Button variant="outline" onClick={() => handleOpenAuthModal('signin')}>
@@ -85,9 +99,14 @@ export const Navigation = () => {
                 </Button>
               )}
               {user?.role === 'client' && (
-                <Button onClick={() => handleNavigate('/post-project')} className="w-full justify-start">
-                  Post Project
-                </Button>
+                <>
+                  <Button onClick={() => handleNavigate('/post-project')} className="w-full justify-start">
+                    Post Project
+                  </Button>
+                  <Button onClick={() => handleNavigate('/projects')} variant="outline" className="w-full justify-start">
+                    View Projects
+                  </Button>
+                </>
               )}
               {!user && (
                 <a href="#for-clients" className="block px-3 py-2 text-gray-700 hover:text-gray-900 transition-colors">
@@ -96,7 +115,7 @@ export const Navigation = () => {
               )}
               <div className="px-3 py-2 space-y-2">
                 {user ? (
-                  <Button variant="outline" className="w-full" onClick={signOut}>
+                  <Button variant="outline" className="w-full" onClick={handleSignOut}>
                     Sign Out
                   </Button>
                 ) : (
