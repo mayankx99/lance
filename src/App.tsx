@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,14 +6,13 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { useAuth } from "./contexts/AuthContext";
 import Index from "./pages/Index";
-import Projects from "./pages/Projects";
+import Projects from "./pages/projects";
 import PostProject from "./pages/PostProject";
 import NotFound from "./pages/NotFound";
 import { useEffect } from "react";
 
 const queryClient = new QueryClient();
 
-// Role-based route protection component
 const ProtectedRoute = ({ 
   children, 
   allowedRoles,
@@ -37,7 +35,6 @@ const ProtectedRoute = ({
   return children;
 };
 
-// Navigation guard for authenticated users
 const AuthenticatedRoute = ({
   children
 }: {
@@ -56,11 +53,9 @@ const AuthenticatedRoute = ({
   return children;
 };
 
-// Wrap the Routes component with AuthProvider for the ProtectedRoute to work
 const AppRoutes = () => {
   const { user, loading } = useAuth();
 
-  // Debug helper
   useEffect(() => {
     if (!loading) {
       console.log("Current auth state:", user ? `Logged in as ${user.role}` : "Not logged in");
