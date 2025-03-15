@@ -31,6 +31,7 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModal
   const [isSignUp, setIsSignUp] = useState(initialMode === 'signup');
   const [role, setRole] = useState<'student' | 'client'>('student');
   const [error, setError] = useState<string | null>(null);
+  const [processing, setProcessing] = useState(false);
   const { signIn, signUp, loading } = useAuth();
   const { register, handleSubmit, formState: { errors }, reset } = useForm<AuthFormValues>({
     defaultValues: {
@@ -51,11 +52,14 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModal
     if (isOpen) {
       reset({ email: '', password: '' });
       setError(null);
+      setProcessing(false);
     }
   }, [isOpen, isSignUp, reset]);
 
   const onSubmit = async (data: AuthFormValues) => {
     setError(null);
+    setProcessing(true);
+    
     try {
       if (isSignUp) {
         await signUp(data.email, data.password, role);
@@ -74,6 +78,8 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModal
     } catch (error: any) {
       console.error('Authentication error:', error);
       setError(error.message || "An error occurred during authentication");
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -115,7 +121,7 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModal
               id="email" 
               type="email" 
               placeholder="Enter your email"
-              autoComplete="off"
+              autoComplete="email"
               {...register("email", { 
                 required: "Email is required",
                 pattern: {
@@ -133,7 +139,7 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModal
               id="password" 
               type="password" 
               placeholder="Enter your password"
-              autoComplete="new-password"
+              autoComplete={isSignUp ? "new-password" : "current-password"}
               {...register("password", { 
                 required: "Password is required",
                 minLength: {
@@ -172,9 +178,9 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModal
           <Button 
             type="submit" 
             className="w-full" 
-            disabled={loading}
+            disabled={processing || loading}
           >
-            {loading ? 'Processing...' : isSignUp ? 'Sign up' : 'Sign in'}
+            {processing || loading ? 'Processing...' : isSignUp ? 'Sign up' : 'Sign in'}
           </Button>
           
           <Button
@@ -182,7 +188,7 @@ export const AuthModal = ({ isOpen, onClose, initialMode = 'signin' }: AuthModal
             variant="link"
             className="w-full"
             onClick={toggleAuthMode}
-            disabled={loading}
+            disabled={processing || loading}
           >
             {isSignUp
               ? 'Already have an account? Sign in'

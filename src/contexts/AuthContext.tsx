@@ -25,6 +25,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(true);
       try {
         const { data: { session } } = await supabase.auth.getSession();
+        console.log("Session check:", session);
         if (session?.user) {
           await fetchUserProfile(session.user.id);
         } else {
@@ -89,8 +90,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('Attempting to sign in with:', { email });
       
       const { data, error } = await supabase.auth.signInWithPassword({ 
-        email, 
-        password 
+        email: email.trim(), 
+        password: password 
       });
       
       if (error) {
@@ -130,12 +131,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('Attempting to sign up with:', { email, role });
       
       const { data, error } = await supabase.auth.signUp({ 
-        email, 
+        email: email.trim(), 
         password,
         options: {
           data: {
             role: role,
-            email: email
+            email: email.trim()
           }
         }
       });
